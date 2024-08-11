@@ -7,6 +7,7 @@ import { users } from "../schema";
 import { actionClient } from "@/lib/safe-action";
 import { RegisterSchema } from "@/types/register-schema";
 import { generateEmailVerificationToken } from "./tokens";
+import { sendVerificationEmail } from "./emails";
 
 export const emailRegister = actionClient
   .schema(RegisterSchema)
@@ -20,7 +21,10 @@ export const emailRegister = actionClient
     if (existingUser) {
       if (!existingUser.emailVerified) {
         const verificationToken = await generateEmailVerificationToken(email);
-        // await sendVerificationEmail()
+        await sendVerificationEmail(
+          verificationToken[0].email,
+          verificationToken[0].token
+        );
 
         return { success: "Email confirmation resent" };
       }
@@ -34,7 +38,10 @@ export const emailRegister = actionClient
       password: hashedPassword,
     });
     const verificationToken = await generateEmailVerificationToken(email);
-    // await sendVerificationEmail()
+    await sendVerificationEmail(
+      verificationToken[0].email,
+      verificationToken[0].token
+    );
 
     return { success: "Confirmation email sent" };
   });
