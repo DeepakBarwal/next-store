@@ -1,0 +1,28 @@
+"use server";
+
+import bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
+import { db } from "..";
+import { users } from "../schema";
+import { actionClient } from "@/lib/safe-action";
+import { RegisterSchema } from "@/types/register-schema";
+
+export const emailRegister = actionClient
+  .schema(RegisterSchema)
+  .action(async ({ parsedInput: { email, name, password } }) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
+
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (existingUser) {
+      // if (!existingUser.emailVerified) {
+      //     const verificationToken =
+      // }
+      return { error: "Email already in use" };
+    }
+
+    return { success: "yayyy" };
+  });
